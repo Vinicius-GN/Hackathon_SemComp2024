@@ -8,7 +8,6 @@ intents = discord.Intents.all()
 client = commands.Bot(command_prefix="t!", intents=intents)
 
 
-ticket_dict = {}
 
 @client.command()
 async def startupMessage(ctx : commands.Context):
@@ -23,20 +22,8 @@ async def startupMessage(ctx : commands.Context):
                     value="""Siga os links abaixo para obter respostas para duvidas frequentes,  
                     ou conversar com os moderadores se for neccessario""",
                     inline=False)
-    # embed.add_field(name="Categorias", 
-    #                 value="""Para sua conveniencia dividimos nossos 
-    #                   recursos nas categorias abaixo""", 
-    #                   inline=False)
-    # embed.add_field(name="*Acad Arena*", 
-    #                 value="""Informacoes pra voce que acabou de chegar 
-    #                 e quer saber um pouco mais sobre nossa comunidade""", 
-    #                 inline=False)
-    # embed.add_field(name="*Documentos*", 
-    #                 value="""Problemas com a validacao dos seus documentos? 
-    #                 Entre nessa secao e informe-se de problemas recorrentes""",
-    #                 inline=False)
-    embed.add_field(name="*Ajuda*", 
-                    value="""Clique no link do nosso FAQ para ser redirecionado para nossa pagina de ajuda, 
+    embed.add_field(name="*Suporte*", 
+                    value="""Clique no link da nossa Pagina de Suporte para ser redirecionado, 
                     onde voce encontra informacoes sobre nossa comunidade, duvidas frequentes e informcacoes 
                     sobre torneios""", 
                     inline=False)
@@ -48,8 +35,14 @@ async def startupMessage(ctx : commands.Context):
     embed.add_field(name="*Contatar moderacao*", 
                     value="""Caso seu problema nao possa ser solucionado 
                     pelas opcoes anteriores, voce pode contatar nossa equipe de 
-                    moderadores""")
+                    moderadores
+                    Caso deseje contatar a moderacao, clique no botao e sera criada uma sala \"atendimento\" 
+                    com seu nome, na qual seu atendimento prosseguira, voce deve entrar manualmente nela""")
+    embed.add_field(name="*Reportar Bug*", 
+                    value="""Nada eh perfeito e podem haver erros, caso encontre algum, avise pra gente!""", 
+                    inline=False)
     embed.set_footer(text="*Apenas contate a moderacao caso seja estritamente necessario*")
+    embed.set_thumbnail(url="https://pbs.twimg.com/profile_images/1628812300470611968/ZcCTd7Yg_400x400.jpg")
 
     #View of the startup message
     class StartView(View):
@@ -78,16 +71,61 @@ async def startupMessage(ctx : commands.Context):
                 category=ticket_category,
                 overwrites=overwrites
             )
-            ticket_dict[interaction.user] = ticket_channel
+            await interaction.response.send_message("Feito! Siga para o canal de atendimento", ephemeral=True)
 
             #Ticket first message embed
-            embed = discord.Embed(colour=discord.Color.purple())
-            embed.add_field(name="**Atendimento Particular**",
-                            value="""Aqui comeca seu atendimento com nossa moderacao,
-                            envie suas duvidas ou problemas e sera respondido em 
-                            breve pela nossa equipe""")
-            embed.set_footer(text="Ao encerrar seu atendimento, clique no botao abaixo")
-            #Ticket first message view
+           
+
+            message = f"Ola {interaction.user.name}, bem vindo ao canal de atendimento, antes de prosseguirmos "
+            message += "responda algumas perguntas para que possamos te ajudar melhor.\n"
+            message += "Em qual categoria seu problema melhor se enquadra?"
+            chosen_issue = ""
+            def issueButtonFactory(issue:str):
+                b = Button(label=issue)
+                async def callback(interaction : discord.Interaction):
+                    nonlocal chosen_issue, issue
+                    chosen_issue = issue
+                    await interaction.response.send_message("Certo", ephemeral=True)
+                b.callback = callback
+                return b
+            class FirstTicketView(View):
+                def __init__(self):
+                    super().__init__()
+                    for i in ["Documentos", "Torneios", "Outro"]:
+                        self.add_item(issueButtonFactory(i))
+            await ticket_channel.send(message, view=FirstTicketView())
+            
+            def checkInteraction(i):
+                nonlocal interaction
+                return interaction.channel == ticket_channel
+            await client.wait_for("interaction")
+
+            message = "Otimo! Agora voce pode dar uma descricao em texto de que tipo de problema esta enfrentando"
+            message +="\nObs: So precisa enviar como mensagem nesse chat"
+            embed = discord.Embed()
+            embed.set_footer(text="*Este processo garante que um moderador que entende do seu problema ira atende-lo*")
+            await ticket_channel.send(message, embed=embed)
+            
+            def checkMessage(m):
+                return m.channel == ticket_channel and m.author != client.user
+            response = await client.wait_for('message', check=checkMessage)
+            
+
+            #Here comes the,  part where the mods are alerted
+            mod_channel = discord.utils.get(guild.channels, name="atendimentos-pendentes")
+            view = View()
+            view.add_item(Button(label="Atender", 
+                url=f"https://discord.com/channels/{guild.id}/{ticket_channel.id}")
+            )
+            embed = discord.Embed(title=f"Atendimento requisitado por {interaction.user.name}",
+                                  colour=discord.Colour.purple()
+                                  )
+            embed.add_field(name="Topico", value=chosen_issue)
+            embed.add_field(name="Descricao", value=response.content)
+            await mod_channel.send(embed=embed, view=view)
+            
+            #Ticket termination message view
+
             class TerminationView(View):
                 #Ticket termination button
                 @discord.ui.button(label="Encerrar atendimento", 
@@ -98,30 +136,22 @@ async def startupMessage(ctx : commands.Context):
                     await ticket_channel.delete()
                     await ticket_category.delete()
             view = TerminationView()
-            await ticket_channel.send(embed=embed, view=view)
+            message = "Tudo pronto! A moderacao foi informada do seu problema"
+            message += "\nEm breve um moderador te atendera por esse canal. Fique antenado!"
+            await ticket_channel.send(message, view=view)
 
-            #Here comes the,  part where the mods are alerted
-            mod_channel = discord.utils.get(guild.channels, name="atendimentos-pendentes")
-            view = View()
-            view.add_item(Button(label="Atender", 
-                url=f"https://discord.com/channels/{guild.id}/{ticket_channel.id}")
-            )
-            await mod_channel.send(f"Atendimento requisitado por {interaction.user.name}", view=view)
+            
     
     
 
     view = StartView()
-    # view.add_item(Button(label="Acad Arena", url="https://clonacartao.com.br/"
-    #                      , style=discord.ButtonStyle.blurple))
-    # view.add_item(Button(label="Documentos", url="https://clonacartao.com.br/"
-    #                      , style=discord.ButtonStyle.link))
-    # view.add_item(Button(label="Denuncia", url="https://clonacartao.com.br/"
-    #                      , style=discord.ButtonStyle.red))
-    # view.add_item(Button(label="Moderacao", url="https://clonacartao.com.br/"
-    #                      , style=discord.ButtonStyle.premium))
-    view.add_item(Button(label="FAQ geral", url="https://clonacartao.com.br/"
+    view.add_item(Button(label="Denuncia", url="https://clonacartao.com.br/"
+                         , style=discord.ButtonStyle.red))
+    view.add_item(Button(label="Suporte", url="https://clonacartao.com.br/"
                          , style=discord.ButtonStyle.link))
-    await ctx.send(view=StartView(), embed=embed)
+    view.add_item(Button(label="Reportar Bug", url="https://clonacartao.com.br/"
+                         , style=discord.ButtonStyle.link))
+    await ctx.send(view=view, embed=embed)
 
 
 
