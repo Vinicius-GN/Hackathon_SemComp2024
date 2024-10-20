@@ -1,0 +1,159 @@
+/* Estilo geral para o body */
+body {
+    min-height: 100vh;
+    background: linear-gradient(to bottom right,#87CEEB,  #6a0dad) !important; /* Fundo gradiente */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #000000; /* Texto preto padrão */
+}
+
+/* Título "Qual a sua dúvida?" */
+.titulo-duvida {
+    text-align: center;
+    margin-bottom: 30px; /* Espaçamento abaixo do título */
+    font-size: 40px;
+    font-weight: bold;
+}
+
+/* Estilização do formulário de busca */
+.search-bar-form {
+    display: flex;
+    justify-content: center; /* Centraliza o formulário */
+    margin-top: 20px;
+}
+
+.input-group .form-control-sm {
+    font-size: 14px; /* Tamanho de texto menor */
+    max-width: 300px; /* Limita a largura do campo de texto */
+}
+
+.input-group .btn-sm {
+    font-size: 14px; /* Tamanho de texto menor para o botão */
+    padding: 5px 10px; /* Menor padding no botão */
+    background-color: #6c757d; /* Cor secundária para o botão (Bootstrap) */
+    border-color: #6c757d; /* Cor da borda */
+    transition: background-color 0.3s ease; /* Suave transição de cor */
+}
+
+.input-group .btn-sm:hover {
+    background-color: #5a6268; /* Cor de destaque no hover, mas ainda discreta */
+}
+
+/* Reduzir a margem entre o botão e o input */
+.input-group > .form-control, .input-group > .btn {
+    margin: 0;
+}
+
+/* Estilo do cabeçalho */
+.page-header {
+    background-color: #1f1f1f; /* Cor escura para contraste com a logo */
+    color: #ffffff; /* Texto branco */
+    padding: 20px;
+    text-align: center; /* Centraliza o texto no cabeçalho */
+    margin-bottom: 30px; /* Espaçamento abaixo do cabeçalho */
+}
+
+.header-content {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.header-content .logo {
+    height: 50px; /* Tamanho da logo */
+    margin-right: 15px; /* Espaçamento entre logo e título */
+}
+
+/* Container principal para as categorias */
+.container-categorias {
+    background-color: #ffffff; /* Fundo branco para a seção */
+    padding: 40px;
+    max-width: 600px;
+    margin: 20px auto; /* Centraliza a seção */
+    border-radius: 15px; /* Arredonda as quinas da seção principal */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra leve para destaque */
+}
+
+/* Estilo dos links */
+.categoria-link-wrapper {
+    text-decoration: none; /* Remove o sublinhado dos links */
+    display: block; /* Faz o link abranger todo o conteúdo da div */
+    color: inherit; /* Mantém a cor do texto */
+}
+
+/* Estilo dos boxes das categorias */
+.categoria-box {
+    background-color: #7B68EE; /* Roxo da logo */
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px; /* Arredondando os cantos dos boxes */
+    text-align: center; /* Centraliza o conteúdo do box */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Sombra para dar profundidade */
+    color: #ffffff; /* Cor do texto branco */
+    font-size: 18px;
+    font-weight: bold;
+    transition: background-color 0.3s ease; /* Animação suave para hover */
+}
+
+/* Efeito de hover na div completa */
+.categoria-link-wrapper:hover .categoria-box {
+    background-color: #6a0dad; /* Altera a cor de fundo no hover */
+}
+
+/* Estilo dos links dentro dos boxes */
+.categoria-link {
+    color: #ffffff; /* Cor do texto branco para contraste */
+    text-decoration: none; /* Remove o sublinhado dos links */
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Efeito de hover (quando o mouse passa por cima) */
+.categoria-link:hover {
+    color: #cccccc; /* Cor do texto no hover */
+}
+
+/* Media query para dispositivos móveis (telas menores que 768px) */
+@media (max-width: 768px) {
+    /* Ajuste de padding e tamanho do container em telas menores */
+    .container-categorias {
+        padding: 20px;
+        max-width: 90%;
+    }
+
+    /* Aumenta o espaçamento do cabeçalho em telas menores */
+    .page-header {
+        padding: 15px;
+        font-size: 1.5em; /* Ajuste do tamanho da fonte do cabeçalho */
+    }
+
+    /* Ajusta o tamanho dos boxes de categoria em telas menores */
+    .categoria-box {
+        padding: 15px;
+    }
+
+    /* Ajusta o tamanho da fonte dos links dentro dos boxes em telas menores */
+    .categoria-link {
+        font-size: 16px;
+    }
+}
+
+/* Media query para dispositivos muito pequenos (telas menores que 480px) */
+@media (max-width: 480px) {
+    /* Reduz ainda mais o padding do container e cabeçalho */
+    .container-categorias {
+        padding: 10px;
+        max-width: 95%;
+    }
+
+    .page-header {
+        padding: 10px;
+        font-size: 1.2em;
+    }
+
+    /* Tamanho da fonte dos boxes */
+    .categoria-link {
+        font-size: 14px;
+    }
+}
