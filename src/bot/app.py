@@ -159,7 +159,7 @@ async def handle_moderation_request(interaction):
                 "Outro"
             ]
             for category in categories:
-                self.add_item(Button(label=category, style=discord.ButtonStyle.blurple))
+                self.add_item(issueButtonFactory(category))
 
 
     await ticket_channel.send(message, view=FirstTicketView())
@@ -176,8 +176,9 @@ async def handle_moderation_request(interaction):
     response = await client.wait_for('message', check=checkMessage)
 
     faq_message = "Antes de continuar, você já verificou nossa [página de suporte](https://clonacartao.com.br/)? "
+    faq_message += "\nEla possui uma seção especficamente voltada a seu problema!"
     faq_view = View()
-    faq_view.add_item(Button(label="Ver FAQ", url="https://clonacartao.com.br/", style=discord.ButtonStyle.link))
+    faq_view.add_item(Button(label=f"FAQ: {chosen_issue}", url="https://clonacartao.com.br/", style=discord.ButtonStyle.link))
     await ticket_channel.send(faq_message, view=faq_view)
 
     mod_channel = discord.utils.get(guild.channels, name="atendimentos-pendentes")
