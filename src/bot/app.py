@@ -18,7 +18,6 @@ async def on_ready():
     # Obtém o canal de suporte pelo ID
     fixed_channel = client.get_channel(FIXED_CHANNEL_ID)
     
-    # Garante que o bot não poste a mensagem duplicada se já houver mensagens fixas
     if fixed_channel:
         # Cria a visualização (view) com os botões
         class FixedButtonView(View):
@@ -83,7 +82,6 @@ async def send_startup_message(channel):
     embed.set_footer(text="Estamos aqui para ajudar! Use o botão de contato com moderação.")
     embed.set_thumbnail(url="https://pbs.twimg.com/profile_images/1628812300470611968/ZcCTd7Yg_400x400.jpg")
 
-    # View da mensagem inicial (botões)
     class StartView(View):
         @discord.ui.button(label="🔧 Contatar Moderação", style=discord.ButtonStyle.red)
         async def contactModerators(self, interaction: discord.Interaction, button: Button):
@@ -103,9 +101,8 @@ async def send_startup_message(channel):
 
         @discord.ui.button(label="📚 Suporte (FAQ)", style=discord.ButtonStyle.green)
         async def supportFAQ(self, interaction: discord.Interaction, button: Button):
-            await interaction.response.send_message("Visite a nossa página de suporte (FAQ): [FAQ](https://exemplo.com/faq)", ephemeral=True)
+            await interaction.response.send_message("Visite a nossa página de suporte (FAQ): [FAQ](http://127.0.0.1:8000/)", ephemeral=True)
 
-    # Enviar mensagem no canal
     view = StartView()
     await channel.send(embed=embed, view=view)
 
@@ -129,17 +126,17 @@ async def handle_moderation_request(interaction):
     )
     await interaction.response.send_message("Feito! Vá para o canal de atendimento.", ephemeral=True)
 
-    message = f"Olá {interaction.user.name}, bem-vindo ao canal de atendimento. Responda algumas perguntas para "
-    message += "que possamos te ajudar melhor.\n"
-    message += "Em qual categoria seu problema se enquadra?"
-    chosen_issue = ""
-    
-    def issueButtonFactory(issue: str):
-        b = Button(label=issue)
+    message = f"👋 Olá {interaction.user.name}, bem-vindo ao canal de atendimento!\n\n"
+    message += "Por favor, selecione abaixo em qual categoria seu problema se enquadra para que possamos te ajudar melhor:\n"
+
+    selected_issue = None
+
+    def issueButtonFactory(issue: str, emoji: str):
+        b = Button(label=f"{emoji} {issue}", style=discord.ButtonStyle.blurple)
         async def callback(interaction: discord.Interaction):
-            nonlocal chosen_issue, issue
-            chosen_issue = issue
-            await interaction.response.send_message("Certo, problema identificado.", ephemeral=True)
+            nonlocal selected_issue
+            selected_issue = issue
+            await interaction.response.send_message(f"Você selecionou a categoria: {issue}. Aguarde que um moderador vai te ajudar em breve.", ephemeral=True)
         b.callback = callback
         return b
 
@@ -147,58 +144,75 @@ async def handle_moderation_request(interaction):
         def __init__(self):
             super().__init__()
             categories = [
-                "Conheça a plataforma",
-                "Dúvidas sobre Aliança",
-                "Sobre Competições e Ligas",
-                "Problemas Técnicos",
-                "Sistema de Premiação",
-                "Criação e Gestão de Torneios",
-                "Regras e Regulamentos",
-                "Adiamento de Partidas",
-                "Substituição de Membros",
-                "Outro"
+                ("Sou novo aqui", "📚"),
+                ("Dúvidas sobre Aliança", "❓"),
+                ("Competições e Ligas", "🏆"),
+                ("Problemas Técnicos", "🛠️"),
+                ("Sistema de Premiação", "🎁"),
+                ("Criação e Gestão de Torneios", "⚙️"),
+                ("Regras e Regulamentos", "📜"),
+                ("Adiamento de Partidas", "⏳"),
+                ("Substituição de Membros", "🔄"),
+                ("Outro", "🔍")
             ]
-            for category in categories:
-                self.add_item(issueButtonFactory(category))
-
+            for category, emoji in categories:
+                self.add_item(issueButtonFactory(category, emoji))
 
     await ticket_channel.send(message, view=FirstTicketView())
-    
+
     await client.wait_for("interaction")
 
     message = "Por favor, descreva em detalhes o problema que está enfrentando."
     embed = discord.Embed()
     embed.set_footer(text="*Esse processo ajuda a conectar você com um moderador especializado.*")
     await ticket_channel.send(message, embed=embed)
-    
+
     def checkMessage(m):
         return m.channel == ticket_channel and m.author != client.user
     response = await client.wait_for('message', check=checkMessage)
 
-    faq_message = "Antes de continuar, você já verificou nossa [página de suporte](https://clonacartao.com.br/)? "
+    faq_message = "Antes de continuar, você já verificou nossa [página de suporte](http://127.0.0.1:8000/)? "
     faq_message += "\nEla possui uma seção especficamente voltada a seu problema!"
     faq_view = View()
-    faq_view.add_item(Button(label=f"FAQ: {chosen_issue}", url="https://clonacartao.com.br/", style=discord.ButtonStyle.link))
+    faq_view.add_item(Button(label=f"FAQ", url="http://127.0.0.1:8000/categoria/D%C3%BAvidas%20sobre%20Alian%C3%A7a", style=discord.ButtonStyle.link))
     await ticket_channel.send(faq_message, view=faq_view)
 
     mod_channel = discord.utils.get(guild.channels, name="atendimentos-pendentes")
+
     view = View()
     view.add_item(Button(label="Atender", 
         url=f"https://discord.com/channels/{guild.id}/{ticket_channel.id}")
     )
     embed = discord.Embed(title=f"Atendimento requisitado por {interaction.user.name}",
                           colour=discord.Colour.blue())
-    embed.add_field(name="Topico", value=chosen_issue)
-    embed.add_field(name="Descrição", value=response.content)
+
+    embed.add_field(name="Tópico", value=selected_issue, inline=False)
+    embed.add_field(name="Descrição", value=response.content, inline=False)
+
     await mod_channel.send(embed=embed, view=view)
-    
+
     class TerminationView(View):
         @discord.ui.button(label="Encerrar atendimento", style=discord.ButtonStyle.red)
         async def terminateTicket(self, interaction: discord.Interaction, button: Button):
             nonlocal ticket_category, ticket_channel
+            # Enviar notificação ao canal de moderação com o ID do atendimento fechado
+            await mod_channel.send(f"Atendimento #{ticket_channel.id} encerrado por {interaction.user.name}.")
+            
+            # Deletar o canal e a categoria
             await ticket_channel.delete()
             await ticket_category.delete()
 
+            # Notificar moderador com link de administração
+            mod_embed = discord.Embed(
+                title=f"Atendimento #{ticket_channel.id} Encerrado",
+                description="Clique abaixo para registrar o problema resolvido.",
+                colour=discord.Colour.green()
+            )
+            mod_view = View()
+            mod_view.add_item(Button(label="Logar no Sistema Admin", url="http://127.0.0.1:8000/admin/", style=discord.ButtonStyle.link))
+            await mod_channel.send(embed=mod_embed, view=mod_view)
+
+            # Mensagem para o usuário que solicitou o atendimento
             embed_back_to_start = discord.Embed(
                 title="💡 **Central de Suporte da Comunidade**",
                 description="Seu atendimento foi encerrado. Abaixo estão mais opções de suporte.",
