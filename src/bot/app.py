@@ -146,8 +146,22 @@ async def handle_moderation_request(interaction):
     class FirstTicketView(View):
         def __init__(self):
             super().__init__()
-            for i in ["Documentos", "Torneios", "Outro"]:
-                self.add_item(issueButtonFactory(i))
+            categories = [
+                "Conheça a plataforma",
+                "Dúvidas sobre Aliança",
+                "Sobre Competições e Ligas",
+                "Problemas Técnicos",
+                "Sistema de Premiação",
+                "Criação e Gestão de Torneios",
+                "Regras e Regulamentos",
+                "Adiamento de Partidas",
+                "Substituição de Membros",
+                "Outro"
+            ]
+            for category in categories:
+                self.add_item(Button(label=category, style=discord.ButtonStyle.blurple))
+
+
     await ticket_channel.send(message, view=FirstTicketView())
     
     await client.wait_for("interaction")
