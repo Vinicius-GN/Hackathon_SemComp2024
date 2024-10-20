@@ -12,6 +12,7 @@ Antes de começar, você precisará ter as seguintes ferramentas instaladas na s
 - [Git](https://git-scm.com)
 - [Python](https://www.python.org)
 - Ambiente de execucao bash
+- Voce tambem precisa acessar o Poral do Desenvolvedor do Discord para criar seu bot e obter o token
 
 ## Como Rodar
 
