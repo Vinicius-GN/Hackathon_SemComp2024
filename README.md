@@ -11,15 +11,15 @@ Antes de começar, você precisará ter as seguintes ferramentas instaladas na s
 
 - [Git](https://git-scm.com)
 - [Python](https://www.python.org)
-- [Django](https://www.djangoproject.com/)
+- Ambiente de execucao bash
 
 ## Como Rodar
 
 Siga os passos abaixo para instalar e configurar o projeto:
 
 1. Clone o repositório
-2. Certifique-se de entrar no folder "Site"
-3. Para iniciar o website, digite o seguinte comando:
+2. Certifique-se de entrar no folder "src"
+3. Para iniciar o website e o bot, alem de instalar as bibliotecas necessarias, digite o seguinte comando:
 ```bash
-python3 manage.py runserver
+./setup.sh
 ```
