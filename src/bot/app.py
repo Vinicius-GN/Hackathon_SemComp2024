@@ -124,7 +124,8 @@ async def handle_moderation_request(interaction):
         category=ticket_category,
         overwrites=overwrites
     )
-    await interaction.response.send_message("Feito! Vá para o canal de atendimento.", ephemeral=True)
+    await interaction.response.send_message(f"Feito! Vá para o [canal de atendimento.](https://discord.com/channels/{guild.id}/{ticket_channel.id})"
+    , ephemeral=True)
 
     message = f"👋 Olá {interaction.user.name}, bem-vindo ao canal de atendimento!\n\n"
     message += "Por favor, selecione abaixo em qual categoria seu problema se enquadra para que possamos te ajudar melhor:\n"
