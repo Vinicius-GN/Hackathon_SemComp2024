@@ -1,1 +1,1 @@
-token_key = "MTI5NzMyNDI4MTU5MTYyNzgzNw.Ghox7G.qkHS5n4nG0yTVGR8mC-Y4BJY8NL7PYhVcrltYY"
+token_key = "Acesse o portal do desenvolvedor para criar seu bot e obter o token"
