@@ -1,0 +1,13 @@
+{% extends "faqapp/layout.html" %}
+{% load custom_filters %}
+{% block body %}
+<h2 class="text-center mb-4">Formulários</h2>
+{% for formulario in formularios %}
+<a href="{{formulario.url}}" class="categoria-link-wrapper">
+    <div class="categoria-box">
+        {{formulario.titulo}}
+    </div>
+</a>
+{% endfor %}
+
+{% endblock %}
